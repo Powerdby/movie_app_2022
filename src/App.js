@@ -1,4 +1,7 @@
 import React from 'react';
+import axios from 'axios';
+import Movie from './Movie';
+import './App.css';
 
 class App extends React.Component{
   state = {
@@ -7,16 +10,48 @@ class App extends React.Component{
     
   }
 
+  getMovies = async () => {
+    const{
+      data: {
+        data: { movies }
+      }
+    } = await axios.get('https://yts.mx/api/v2/list_movies.json?sort_by=rating');
+    console.log(movies);
+    this.setState({movies, isLoading: false});
+  }
+
   componentDidMount() {
-    setTimeout(() => {
+    /*setTimeout(() => {
       this.setState({isLoading: false});
-    }, 3000);
+    }, 3000);*/
+    this.getMovies();
   }
 
   render() {
-    const {isLoading} = this.state;
+    const {isLoading, movies} = this.state;
     return(
-      <div>{isLoading ? 'Loading...' : '👌'}</div>
+      <section className="container">
+        {isLoading ? (
+          <div className="loader">
+            <spen className="loader_text">Loading...</spen>
+          </div>
+
+        )
+         : (
+          <div className="movies">
+          {movies.map((movie) => (
+            <Movie 
+              key={movie.id}
+              id={movie.id}
+              year={movie.year}
+              title={movie.title}
+              summary={movie.summary}
+              poster={movie.medium_cover_image}
+              genres={movie.genres} />
+          ))}
+        </div>
+      )}
+      </section>
     );
   }
 }
